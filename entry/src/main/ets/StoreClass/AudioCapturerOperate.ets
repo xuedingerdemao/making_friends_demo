@@ -1,6 +1,7 @@
 import { audio } from '@kit.AudioKit'
 import { promptAction } from '@kit.ArkUI'
 import { fileIo } from '@kit.CoreFileKit'
+import { emitter } from '@kit.BasicServicesKit'
 
 //录制pcm音频
 interface FileOptions {
@@ -11,7 +12,7 @@ interface FileOptions {
 export class AudioCapturerOperate {
   static audioCapturer: audio.AudioCapturer //定义全局采集器
   static audioStreamInfo: audio.AudioStreamInfo = {
-    samplingRate: audio.AudioSamplingRate.SAMPLE_RATE_16000,
+    samplingRate: audio.AudioSamplingRate.SAMPLE_RATE_16000, //语音识别仅支持采样率为16000赫兹的pcm音频识别
     channels: audio.AudioChannel.CHANNEL_1,
     sampleFormat: audio.AudioSampleFormat.SAMPLE_FORMAT_S16LE,
     encodingType: audio.AudioEncodingType.ENCODING_TYPE_RAW
@@ -57,6 +58,7 @@ export class AudioCapturerOperate {
             offset: bufferSize, // 偏移量
             length: buffer.byteLength
           })
+          emitter.emit("onBuffer", { data: { buffer } })
           bufferSize += buffer.byteLength
         }
       }

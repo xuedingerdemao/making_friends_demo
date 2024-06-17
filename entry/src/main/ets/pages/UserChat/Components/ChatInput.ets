@@ -12,6 +12,7 @@ import { fileIo, picker } from '@kit.CoreFileKit';
 import cameraPicker from '@ohos.multimedia.cameraPicker'
 import camera from '@ohos.multimedia.camera'
 import LocationMap from '../../../components/LocationMap';
+import { VoiceTransfer } from '../../../StoreClass/VoiceTransferStore';
 
 @Preview
 @Component
@@ -49,6 +50,13 @@ export default struct ChatInput {
   textController: TextInputController = new TextInputController() // 文本的控制器
   @State
   isShowLocationMap: boolean = false //控制展示地图开关
+  @State
+  isShowLocation: boolean = false // 控制位置的变量
+  @State
+  currentAddress: string = "" // 记录当前位置地址的变量
+  //语音转文本
+  @State
+  asrRes: string = ''
   //传递调用的方法
   onSubmitFn: (context: string) => void = () => {
   }
@@ -62,7 +70,7 @@ export default struct ChatInput {
   @Builder
   getVoiceBuilder() {
     Column() {
-      VoiceInput()
+      VoiceInput({ arsString: this.asrRes })
     }
   }
 
@@ -119,11 +127,15 @@ export default struct ChatInput {
   @Builder
   getLocationContent() {
     Stack({ alignContent: Alignment.Top }) {
-      LocationMap()
+      LocationMap({ currentAddress: this.currentAddress })
       Row() {
         Text("取消")
           .fontColor($r("app.color.text_second"))
           .fontWeight(FontWeight.Bold)
+          .onClick(() => {
+            this.isShowLocation = false
+            this.currentAddress = ""
+          })
         Button("发送")
           .type(ButtonType.Normal)
           .borderRadius(4)
@@ -131,6 +143,15 @@ export default struct ChatInput {
           .fontColor($r("app.color.white"))
           .height(30)
           .width(60)
+          .onClick(() => {
+            if (this.currentAddress) {
+              //发消息
+              this.onSubmitFn(this.currentAddress)
+
+            }
+            this.currentAddress = ''
+            this.isShowLocation = false
+          })
       }
       .justifyContent(FlexAlign.SpaceBetween)
       .padding({
@@ -303,8 +324,12 @@ export default struct ChatInput {
       //  发送语音信息
       this.sendAudio()
     }
+    if (this.voiceState === VoiceTypeEnum.Transfer) {
+      // 转化语音文本
+      this.onSubmitFn(this.asrRes) // 发送语音消息
+    }
     this.voiceState = VoiceTypeEnum.RecordIng
-
+    this.asrRes = ""
 
   }
 
@@ -478,9 +503,13 @@ export default struct ChatInput {
                     const sW = this.screenWidth / 2
                     if (event.fingerList[0].globalY > this.screenHeight - this.recordHeight) {
                       this.voiceState = VoiceTypeEnum.RecordIng
-                      return
+                    } else {
+                      event.fingerList[0].globalX < sW ? (this.voiceState = VoiceTypeEnum.Cancel) : (this.voiceState = VoiceTypeEnum.Transfer)
+                      //语音转文本
+                      VoiceTransfer.VoiceToText(this.audioFilePath, (res) => {
+                        this.asrRes = res.result
+                      })
                     }
-                    event.fingerList[0].globalX < sW ? (this.voiceState = VoiceTypeEnum.Cancel) : (this.voiceState = VoiceTypeEnum.Transfer)
                   })
               )
             )

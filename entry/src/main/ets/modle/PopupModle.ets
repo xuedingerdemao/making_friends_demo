@@ -88,5 +88,28 @@ const bottomPopup: PopupItem[] = [
   }
 ]
 
+// 首页弹层提示
+const homePagePopup: PopupItem[] = [
+  {
+    id: 'groupChat',
+    title: '发起群聊',
+    icon: $r('app.media.ic_public_message')
+  },
+  {
+    id: 'addFriends',
+    title: '添加朋友',
+    icon: $r('app.media.ic_public_add_friend')
+  },
+  {
+    id: 'scan',
+    title: '扫一扫',
+    icon: $r('app.media.ic_public_scan')
+  },
+  {
+    id: 'pay',
+    title: '收付款',
+    icon: $r('app.media.ic_public_receive')
+  }
+]
 
-export { PopupItem, popupList, bottomPopup }
+export { PopupItem, popupList, bottomPopup, homePagePopup }

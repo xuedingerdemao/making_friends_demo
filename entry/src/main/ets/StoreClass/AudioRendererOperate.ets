@@ -11,7 +11,7 @@ export class AudioRendererOperate {
   static renderModel: audio.AudioRenderer
   // 采样配置
   static audioStreamInfo: audio.AudioStreamInfo = {
-    samplingRate: audio.AudioSamplingRate.SAMPLE_RATE_16000,
+    samplingRate: audio.AudioSamplingRate.SAMPLE_RATE_16000, //语音识别仅支持采样率为16000赫兹的pcm音频识别
     channels: audio.AudioChannel.CHANNEL_1,
     sampleFormat: audio.AudioSampleFormat.SAMPLE_FORMAT_S16LE,
     encodingType: audio.AudioEncodingType.ENCODING_TYPE_RAW
@@ -133,8 +133,8 @@ export class AudioRenderer {
     if (!AudioRenderer.renderModel) {
       AudioRenderer.renderModel = await audio.createAudioRenderer(AudioRenderer.audioRendererOptions)
       /* 4.播放时会触发on事件取读取：
-      a.一段段buffer去读，读完后将当前buffer加在前一段后面，循环
-      b.直到所有buffer相加的长度>=maxSize时停止播放 ,关闭文件
+       a.一段段buffer去读，读完后将当前buffer加在前一段后面，循环
+       b.直到所有buffer相加的长度>=maxSize时停止播放 ,关闭文件
        */
       AudioRenderer.renderModel.on('writeData', (buffer: ArrayBuffer) => {
         // 停止播放

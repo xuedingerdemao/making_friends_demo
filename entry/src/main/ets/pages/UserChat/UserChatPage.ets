@@ -11,6 +11,7 @@ import { AudioCapturerOperate } from '../../StoreClass/AudioCapturerOperate'
 import { AudioRendererOperate } from '../../StoreClass/AudioRendererOperate'
 import { AVPlayerPStore } from '../../StoreClass/AVPlayerPStore'
 import { contactsStore } from '../../StoreClass/ContactsStore'
+import { VoiceTransfer } from '../../StoreClass/VoiceTransferStore'
 import ChatInput from './Components/ChatInput'
 import Message from './Components/Message'
 
@@ -117,8 +118,13 @@ struct UserChatPage {
 
     this.scroller.scrollEdge(Edge.Bottom)
 
+    /*    // 用小艺播出
+        VoiceTransfer.textToVoice(context) // 文本转语音播报
+    */
+
     //请求聊天信息
     this.getRequestMessage(context)
+
   }
 
   //获取文本聊天信息
@@ -135,6 +141,10 @@ struct UserChatPage {
     this.messageLists.push(sendMessage)
     //存储聊天记录
     this.storageMessageFn(this.getSendUserTable.user_id, sendMessage)
+
+    // 用小艺播出
+    VoiceTransfer.textToVoice(res?.data?.info?.text) // 文本转语音播报
+
   }
 
   //发送语音

@@ -1,11 +1,17 @@
 import { promptAction, router } from '@kit.ArkUI'
 import { AddTopCommonList, AppTitle } from '../modle/AppTitleModle'
+import { homePagePopup, PopupItem } from '../modle/PopupModle'
+import { scanBarcode, scanCore, } from '@kit.ScanKit';
 
 @Component
 export default struct CommonTop {
   titleName: string = ''
   @State
   addTopCommonList: AppTitle[] = AddTopCommonList
+  @State
+  popList: PopupItem[] = homePagePopup
+  @State
+  isShowDropDown: boolean = false // 显示底部浮层
   handleClickAdd: () => void = () => {
   }
   openSearchFn: () => void = () => {
@@ -38,6 +44,63 @@ export default struct CommonTop {
     .width(140)
   }
 
+  //弹层指示
+  @Builder
+  getDropDown() {
+    Column() {
+      ForEach(this.popList, (item: PopupItem) => {
+        Row() {
+          Image(item.icon)
+            .fillColor($r('app.color.white'))
+            .width(20)
+            .height(20)
+          Text(item.title)
+            .fontColor(Color.White)
+            .layoutWeight(1)
+            .textAlign(TextAlign.Center)
+        }
+        .width('90%')
+        .height(48)
+        .justifyContent(FlexAlign.Center)
+        .padding({
+          left: 10,
+          right: 10
+        })
+        .onClick(() => {
+          if (item.id === 'scan') {
+            this.scan()
+          } else if (item.id === 'pay') {
+            router.pushUrl({
+              url: 'PageComponents/PayQrCodePage'
+            })
+          }
+        })
+
+      })
+    }
+    .width(150)
+  }
+
+  // 扫码
+  async scan() {
+    // 定义扫码参数options
+    let options: scanBarcode.ScanOptions = {
+      scanTypes: [scanCore.ScanType.ALL],
+      enableMultiMode: true,
+      enableAlbum: true
+    };
+    // 启动扫码，拉起扫码界面
+    try {
+      const result = await scanBarcode.startScanForResult(getContext(this), options)
+      // 判断值 网址 参数
+      AlertDialog.show({
+        message: result.originalValue
+      })
+    } catch (error) {
+      promptAction.showToast({ message: error.message })
+    }
+  }
+
   build() {
     Row() {
       // Blank()
@@ -58,12 +121,25 @@ export default struct CommonTop {
               this.openSearchFn()
             })
           Image($r('app.media.ic_public_topadd'))
+            .margin({ right: 12 })
             .width(20)
             .aspectRatio(1)
             .onClick(() => {
               this.handleClickAdd()
+            })//弹层
+            .bindPopup(this.isShowDropDown, {
+              builder: this.getDropDown,
+              placement: Placement.Bottom,
+              arrowPointPosition: ArrowPointPosition.END,
+              onStateChange: (event) => {
+                this.isShowDropDown = event.isVisible
+              },
+              popupColor: $r("app.color.popup_back"),
+              backgroundBlurStyle: BlurStyle.NONE
             })
-            .bindMenu(this.topMenuBuilder, {})
+            .onClick(() => {
+              this.isShowDropDown = true
+            })
         }
         .justifyContent(FlexAlign.End)
         .width('100%')

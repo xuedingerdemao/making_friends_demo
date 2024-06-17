@@ -6,7 +6,9 @@ import { PopupItem, popupList } from '../../../modle/PopupModle'
 import { AudioRendererOperate } from '../../../StoreClass/AudioRendererOperate'
 import { FileOperate } from '../../../StoreClass/FileOperate'
 import { AVPlayerPStore } from '../../../StoreClass/AVPlayerPStore'
+import { VoiceTransfer } from '../../../StoreClass/VoiceTransferStore'
 
+@Preview
 @Component
 export default struct Message {
   @StorageProp(CurrentUser_Key)
@@ -22,7 +24,9 @@ export default struct Message {
   @State
   isSelectMore: boolean = false
   audioState: AnimationStatus = AnimationStatus.Initial
-  videoController: VideoController = new VideoController() // 视频controller
+  videoController: VideoController = new VideoController() // 视频controllergetAudioContent
+  @State
+  transferResult: string = "" // 用来记录语音变量转化的文字
   delMessage: () => void = () => {
   }
   delMoreMessage: () => void = () => {
@@ -54,6 +58,11 @@ export default struct Message {
           if (item.id === 'more') {
 
             this.delMoreMessage()
+          }
+          if (item.id === 'literal') {
+            VoiceTransfer.VoiceToText(this.getSendUserTable.sourceFilePath, (res) => {
+              this.transferResult = res.result // 拿到转化的文字
+            })
           }
         })
       })
@@ -174,6 +183,19 @@ export default struct Message {
       })
       this.audioState = AnimationStatus.Running
     })
+
+    if (this.transferResult) {
+      Text(this.transferResult)
+        .backgroundColor(this.currentUserInfo.user_id === this.getSendUserTable.sendUser.user_id ? $r("app.color.second_primary") : $r("app.color.white"))
+        .fontColor($r("app.color.text_primary"))
+        .padding(10)
+        .margin({
+          left: 10,
+          right: 10
+        })
+        .borderRadius(4)
+
+    }
   }
 
   // 获取图片显示

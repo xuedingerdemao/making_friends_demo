@@ -11,6 +11,8 @@ import { pinyin4js } from '@ohos/pinyin4js'
 import { getCurrentUserInfoAPI } from '../api/CurrentUserInfo'
 import CurrentUser from '../components/CurrentUser'
 import ChatComponent from '../PageComponents/ChatComponent'
+import { homePagePopup, PopupItem } from '../modle/PopupModle'
+import Discover from '../components/DiscoverPage'
 
 
 @Entry
@@ -58,6 +60,7 @@ struct Index {
       Image(this.currentTabBarIndex === index ? item.selectIcon : item.icon)
         .width(20)
         .aspectRatio(1)
+
       Text(item.title)
         .fontSize(12)
         .fontColor(this.currentTabBarIndex === index ? "#1AAD19" : "#2A2929")//"#1AAD19": "#2A2929"
@@ -276,11 +279,14 @@ struct Index {
                     top: this.topSafeHeight
                   })
               }
-              if (item.name === 'chat') {
+              else if (item.name === 'chat') {
                 ChatComponent()
               }
-              if (item.name === 'connect') {
+              else if (item.name === 'connect') {
                 ContactComponent()
+              }
+              else if (item.name === 'discover') {
+                Discover()
               }
             }
             .padding({
